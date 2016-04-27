@@ -8,11 +8,13 @@ app = Flask(__name__)
 app.debug = True
 CORS(app)
 
+
 @app.route('/')
 def info():
     res = {"api_version": "0.1",
            "author": "Bas Vlaszaty"}
     return jsonify(res)
+
 
 @app.route('/rates', methods=['GET'])
 def get_rates():
@@ -34,7 +36,7 @@ def create_rate():
         rrid = request.json['rate_id'].upper()
         rate = request.json['rate']
 
-        document = {"rate_id": rrid,
+        document = {"_id": rrid,
                     "rate": rate}
 
         tid = db.rates.insert_one(document).inserted_id
@@ -46,34 +48,37 @@ def create_rate():
 
     return jsonify(res)
 
+
 @app.route('/rates/<rate_id>', methods=['GET'])
 def get_rate(rate_id):
 
     res = ""
     try:
-        res = db.rates.find_one({"rate_id": rate_id.upper()})
+        res = db.rates.find_one({"_id": rate_id.upper()})
         return dumps(res)
     except Exception, e:
         print "Error inserting: %s" % e
 
     return jsonify(res)
 
+
 @app.route('/rates/<rate_id>', methods=['UPDATE'])
 def update_rate(rate_id):
     res = ""
     try:
-        res = db.rates.update({"rate_id": rate_id.upper()}, {"$set":{request.json}})
+        res = db.rates.update({"_id": rate_id.upper()}, {"$set":{request.json}})
         return jsonify(res.matched_count)
     except Exception, e:
         print "Error updating: %s" % e
 
     return jsonify(res)
 
+
 @app.route('/rates/<rate_id>', methods=['DELETE'])
 def delete_rate(rate_id):
     res = ""
     try:
-        result = db.rates.delete_one({"rate_id": rate_id.upper()})
+        result = db.rates.delete_one({"_id": rate_id.upper()})
         return jsonify({"deleted_count": result.deleted_count})
     except Exception, e:
         print "Error inserting: %s" % e
